@@ -53,6 +53,11 @@ const Navbar = ({ token, role }) => {
           </>
         )}
 
+        {/* Show Payment link only if the user is logged in */}
+        {storedToken && (
+          <li><Link to="/payment-form" style={styles.navLink}>Payment</Link></li>
+        )}
+
         {/* Show Logout link only for logged-in users */}
         {storedToken && (
           <li><button onClick={handleLogout} style={styles.navLink}>Logout</button></li>

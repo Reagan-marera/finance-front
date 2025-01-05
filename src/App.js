@@ -12,6 +12,7 @@ import Dashboard from './components/Dashboard'; // Import Dashboard component
 import Home from './Home';
 import MemberInfo from './components/MemberInfo';
 import CreatePledge from './components/CreatePledge';
+import PaymentForm from './components/Stk';
 
 function App() {
   const [token, setToken] = useState(null); // Manage the authentication token
@@ -70,12 +71,33 @@ function App() {
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
           {/* Member Info Route (protected) */}
-          <Route path="/member/:user_id" element={<ProtectedRoute><MemberInfo /></ProtectedRoute>} />
+          <Route
+            path="/member/:user_id"
+            element={
+              <ProtectedRoute>
+                <MemberInfo />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Create Pledge Route (protected) */}
-          <Route 
-            path="/create-pledge" 
-            element={<ProtectedRoute><CreatePledge username={username} /></ProtectedRoute>} 
+          <Route
+            path="/create-pledge"
+            element={
+              <ProtectedRoute>
+                <CreatePledge username={username} />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Payment Form Route (protected) */}
+          <Route
+            path="/payment-form"
+            element={
+              <ProtectedRoute>
+                <PaymentForm />
+              </ProtectedRoute>
+            }
           />
         </Routes>
       </div>

@@ -10,7 +10,7 @@ const ChartOfAccountsTable = () => {
     parent_account: '',
     account_name: '',
     account_type: '',
-    sub_account_details: [{ name: '' }], // Removed description
+    sub_account_details: [{ name: '', opening_balance: '' }], // Added opening_balance for each subaccount
   });
 
   // Handle input change for the form
@@ -36,7 +36,7 @@ const ChartOfAccountsTable = () => {
   const handleAddSubAccount = () => {
     setFormData({
       ...formData,
-      sub_account_details: [...formData.sub_account_details, { name: '' }], // Removed description
+      sub_account_details: [...formData.sub_account_details, { name: '', opening_balance: '' }], // Added opening_balance
     });
   };
 
@@ -59,7 +59,7 @@ const ChartOfAccountsTable = () => {
     }
 
     try {
-      const response = await fetch('https://finance.boogiecoin.com/chart-of-accounts', {
+      const response = await fetch('http://localhost:5000/chart-of-accounts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ const ChartOfAccountsTable = () => {
         parent_account: '',
         account_name: '',
         account_type: '',
-        sub_account_details: [{ name: '' }], // Reset subaccount details
+        sub_account_details: [{ name: '', opening_balance: '' }], // Reset subaccount details
       });
       alert(newAccount.message); // Show success message
     } catch (error) {
@@ -94,20 +94,25 @@ const ChartOfAccountsTable = () => {
       setError('Authentication token is missing.');
       return;
     }
-
+  
     try {
-      const response = await fetch(`https://finance.boogiecoin.com/chart-of-accounts/${accountId}`, {
+      // Extract username from JWT token (stored in localStorage)
+      const userData = JSON.parse(atob(token.split('.')[1]));  // Decoding the JWT to access payload
+      const currentUsername = userData.username;
+  
+      const response = await fetch(`http://127.0.0.1:5000/chart-of-accounts/${accountId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
+          'Username': currentUsername,  // Send username along with the request
         },
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to delete account');
       }
-
+  
       // Remove the deleted account from the local state
       setAccounts(accounts.filter(account => account.id !== accountId));
       alert('Account deleted successfully');
@@ -115,6 +120,7 @@ const ChartOfAccountsTable = () => {
       setError(error.message);
     }
   };
+  
 
   useEffect(() => {
     fetchAccounts();
@@ -129,7 +135,7 @@ const ChartOfAccountsTable = () => {
     }
 
     try {
-      const response = await fetch('https://finance.boogiecoin.com/chart-of-accounts', {
+      const response = await fetch('http://127.0.0.1:5000/chart-of-accounts', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -223,6 +229,16 @@ const ChartOfAccountsTable = () => {
                   style={styles.input}
                 />
               </div>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Opening Balance:</label>
+                <input
+                  type="number"
+                  value={subAccount.opening_balance}
+                  onChange={(e) => handleSubAccountChange(index, 'opening_balance', e.target.value)}
+                  placeholder={`Opening Balance ${index + 1}`}
+                  style={styles.input}
+                />
+              </div>
               <button
                 type="button"
                 onClick={() => handleRemoveSubAccount(index)}
@@ -268,7 +284,7 @@ const ChartOfAccountsTable = () => {
                   {account.sub_account_details && account.sub_account_details.length > 0
                     ? account.sub_account_details.map((sub, idx) => (
                         <div key={idx}>
-                          <strong>{sub.name}</strong>
+                          <strong>{sub.name}</strong> - Opening Balance: {sub.opening_balance}
                         </div>
                       ))
                     : 'No subaccounts'}
@@ -289,6 +305,8 @@ const ChartOfAccountsTable = () => {
     </div>
   );
 };
+
+// Styles (same as before, unchanged)
 const styles = {
   container: {
     margin: '0 auto',
@@ -328,9 +346,6 @@ const styles = {
     outline: 'none',
     transition: 'border 0.3s ease',
   },
-  inputFocus: {
-    border: '1px solid #005f87', // World Bank blue on focus
-  },
   button: {
     backgroundColor: '#005f87', // World Bank blue
     color: 'white',
@@ -340,9 +355,6 @@ const styles = {
     borderRadius: '5px',
     cursor: 'pointer',
     transition: 'background-color 0.3s ease',
-  },
-  buttonHover: {
-    backgroundColor: '#003f5c', // Darker blue on hover
   },
   addButton: {
     backgroundColor: '#007bff', // Slightly lighter blue for add action
@@ -398,20 +410,6 @@ const styles = {
     fontSize: '1rem',
     color: '#333', // Standard dark text for readability
   },
-  tableCellActions: {
-    padding: '15px 20px',
-    textAlign: 'center',
-    fontSize: '1rem',
-  },
-  alert: {
-    padding: '10px 15px',
-    backgroundColor: '#f8d7da', // Light red background for alerts
-    color: '#721c24',
-    borderRadius: '5px',
-    marginTop: '15px',
-    marginBottom: '15px',
-  },
 };
-
 
 export default ChartOfAccountsTable;

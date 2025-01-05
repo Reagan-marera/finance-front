@@ -23,7 +23,6 @@ const InvoiceTable = () => {
     credited: [],
   });
 
-  // Fetching invoices and COA
   const fetchInvoices = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -31,21 +30,26 @@ const InvoiceTable = () => {
         setError("User is not authenticated");
         return;
       }
-      const response = await fetch("https://finance.boogiecoin.com/invoices", {
+  
+      const response = await fetch("http://127.0.0.1:5000/invoices", {
         method: "GET",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: { 
+          Authorization: `Bearer ${token}`, 
+          "Content-Type": "application/json" 
+        },
       });
+  
       if (!response.ok) throw new Error(await response.text());
       setInvoices(await response.json());
     } catch (err) {
       setError(err.message);
     }
   };
-
+  
   const fetchCOA = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("https://finance.boogiecoin.com/chart-of-accounts", {
+      const response = await fetch("http://127.0.0.1:5000/chart-of-accounts", {
         method: "GET",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
@@ -164,7 +168,7 @@ const InvoiceTable = () => {
   
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("https://finance.boogiecoin.com/invoices", {
+      const response = await fetch("http://127.0.0.1:5000/invoices", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -193,6 +197,7 @@ const InvoiceTable = () => {
     }
   };
   
+  
 
   const toggleSubAccountsView = (id) => {
     setViewingSubAccounts(viewingSubAccounts === id ? null : id);
@@ -205,7 +210,7 @@ const InvoiceTable = () => {
         setError("User is not authenticated");
         return;
       }
-      const response = await fetch(`https://finance.boogiecoin.com/invoices/${id}`, {
+      const response = await fetch(`http://127.0.0.1:5000/invoices/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

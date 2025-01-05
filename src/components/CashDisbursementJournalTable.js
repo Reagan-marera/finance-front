@@ -31,7 +31,7 @@ function DisbursementForm() {
       const token = localStorage.getItem('token');
       try {
         if (!token) throw new Error('Unauthorized: Missing token.');
-        const response = await fetch('https://finance.boogiecoin.com/chart-of-accounts', {
+        const response = await fetch('http://127.0.0.1:5000/chart-of-accounts', {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         const data = await response.json();
@@ -47,7 +47,7 @@ function DisbursementForm() {
     const fetchDisbursements = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch('https://finance.boogiecoin.com/cash-disbursement-journals', {
+        const response = await fetch('http://127.0.0.1:5000/cash-disbursement-journals', {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         const data = await response.json();
@@ -105,7 +105,7 @@ function DisbursementForm() {
   const handleDelete = async (id) => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`https://finance.boogiecoin.com/cash-disbursement-journals/${id}`, {
+      const response = await fetch(`http://127.0.0.1:5000/cash-disbursement-journals/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` },
       });
@@ -120,6 +120,12 @@ function DisbursementForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
+    
+    // Check if at least one of account_credited or account_debited is filled
+    if (!formData.account_credited && !formData.account_debited) {
+      setErrorMessage('Either account credited or account debited is required.');
+      return;
+    }
   
     const subTotal = subAccountData.reduce((sum, sub) => sum + parseFloat(sub.amount || 0), 0);
     if (formData.total !== subTotal) {
@@ -143,7 +149,7 @@ function DisbursementForm() {
     console.log("Payload being sent:", JSON.stringify(payload, null, 2));
     
     try {
-      const response = await fetch('https://finance.boogiecoin.com/cash-disbursement-journals', {
+      const response = await fetch('http://127.0.0.1:5000/cash-disbursement-journals', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -219,14 +225,13 @@ function DisbursementForm() {
           </select>
         </div>
 
-   {/* Account Credited Dropdown */}
+  {/* Account Credited Dropdown */}
 <div className="form-group">
   <label>Account Credited:</label>
   <select
     name="account_credited"
-    value={formData.account_credited}
+    value={formData.account_credited || ''}
     onChange={handleChange}
-    required
     className="form-control"
   >
     <option value="">Select Account</option>
@@ -245,9 +250,8 @@ function DisbursementForm() {
   <label>Account Debited:</label>
   <select
     name="account_debited"
-    value={formData.account_debited}
+    value={formData.account_debited || ''}
     onChange={handleChange}
-    required
     className="form-control"
   >
     <option value="">Select Account</option>
@@ -260,6 +264,7 @@ function DisbursementForm() {
     ))}
   </select>
 </div>
+
 
 
 
